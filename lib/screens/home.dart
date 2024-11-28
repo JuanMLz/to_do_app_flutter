@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:to_do_app/const/colors.dart';
 import 'package:to_do_app/data/firestore.dart';
 import 'package:to_do_app/screens/add_note_screen.dart';
+import 'package:to_do_app/widgets/stream_note.dart';
 import 'package:to_do_app/widgets/task_widgets.dart';
 
 class Home_Screen extends StatefulWidget {
@@ -45,22 +46,19 @@ class _Home_ScreenState extends State<Home_Screen> {
               });
             }return true;
           },
-          child: StreamBuilder<QuerySnapshot>(
-            stream: Firestore_Datasource().stream(),
-            builder: (context, snapshot) {
-              if(!snapshot.hasData){
-                return CircularProgressIndicator();
-              }
-              final noteslist = Firestore_Datasource().getNotes(snapshot);
-              return ListView.builder(
-                itemBuilder: (context, index){
-                  final note = noteslist[index];
-                  return Task_Widget(note);
-                },
-                itemCount: noteslist.length,
-              );
-            }
-          ),
+          child: Column(
+            children: [
+              StreamNote(false),
+              Text('isDone',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade500,
+                fontWeight: FontWeight.bold,
+                ),
+              ),
+              StreamNote(true),
+            ],
+          )
         ),
       )
     );

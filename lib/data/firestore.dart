@@ -23,7 +23,7 @@ class Firestore_Datasource{
   Future<bool> AddNote(String subtitle, String title, int image) async{
     try {
       var uuid = Uuid().v4();
-      DateTime data = DateTime.now();
+      DateTime data = new DateTime.now();
       await _firestore
           .collection('users')
           .doc(_auth.currentUser!.uid)
@@ -53,6 +53,7 @@ class Firestore_Datasource{
           data['time'], 
           data['image'], 
           data['title'],
+          data['isDon'] ?? false,
         );
       }).toList();
       return notesList;
@@ -63,18 +64,19 @@ class Firestore_Datasource{
   }
 
 
-  Stream<QuerySnapshot> stream(){
+  Stream<QuerySnapshot> stream(bool isDone){
     return _firestore
     .collection('users')
     .doc(_auth.currentUser!.uid)
     .collection('notes')
+    .where('isDon', isEqualTo: isDone)
     .snapshots();
   }
 
   Future<bool> isdone(String uuid, bool isDon) async{
     try{
       await _firestore
-      .collection('user')
+      .collection('users')
       .doc(_auth.currentUser!.uid)
       .collection('notes')
       .doc(uuid)
@@ -83,6 +85,42 @@ class Firestore_Datasource{
     }catch(e){
       print(e);
       return true;
+    }
+  }
+  
+  Future<bool> Update_Note(String uuid, int image, String title, String subtitle) async{
+    try{
+      DateTime data = new DateTime.now();
+      await _firestore
+      .collection('users')
+      .doc(_auth.currentUser!.uid)
+      .collection('notes')
+      .doc(uuid)
+      .update({
+        'time':'${data.hour}:{$data.minute}',
+        'subtitle':subtitle,
+        'title':title,
+        'image':image,
+      });
+      return true;
+    }catch(e){
+      print(e);
+      return true;
+    }
+  }
+
+  Future<bool> delet_note(String uuid) async {
+    try {
+      await _firestore
+      .collection('users')
+      .doc(_auth.currentUser!.uid
+      ).collection('notes')
+      .doc(uuid)
+      .delete();
+    return true;
+  } catch (e){
+    print(e);
+    return true;
     }
   }
 }
